@@ -6,77 +6,20 @@
 /*   By: lcournoy <lcournoy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 17:52:12 by lcournoy          #+#    #+#             */
-/*   Updated: 2025/02/04 13:21:23 by lcournoy         ###   ########.fr       */
+/*   Updated: 2025/02/14 15:21:05 by lcournoy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
 
-void	connect_points(t_point *a, t_point *b, t_vars *vars)
+void	put_pixel(t_image *img, int x, int y, int color)
 {
-	if ((a->x == b->x) && (a->y == b->y))
-	{
-		mlx_pixel_put(vars->mlx, vars->win, a->x, a->y, 0xffffff);
-		return ;
-	}
-	if (a->y == b->y)
-	{
-		draw_horizontal_line(a, b, vars);
-		return ;
-	}
-	if (a->x == b->x)
-	{
-		draw_vertical_line(a, b, vars);
-		return ;
-	}
-	draw_line(a, b, vars);
-}
+	int	offset;
 
-void	draw_horizontal_line(t_point *a, t_point *b, t_vars *vars)
-{
-	int		y;
-	int		x;
-	int		target;
-
-	y = a->y;
-	if (a->x < b->x)
+	if (x >= 0 && x <= 1920 && y >= 0 && y <= 1080)
 	{
-		x = a->x;
-		target = b->x;
-	}
-	if (a->x > b->x)
-	{
-		x = b->x;
-		target = a->x;
-	}
-	while (x < target)
-	{
-		mlx_pixel_put(vars->mlx, vars->win, x, y, 0xffffff);
-		x++;
-	}
-}
-
-void	draw_vertical_line(t_point *a, t_point *b, t_vars *vars)
-{
-	int		y;
-	int		x;
-	int		target;
-
-	x = a->x;
-	if (a->y < b->y)
-	{
-		y = a->y;
-		target = b->y;
-	}
-	if (a->y > b->y)
-	{
-		y = b->y;
-		target = a->y;
-	}
-	while (y < target)
-	{
-		mlx_pixel_put(vars->mlx, vars->win, x, y, 0xffffff);
-		y++;
+		offset = (img->line_len * y) + (x * (img->bits_per_pixel / 8));
+		*((unsigned int *)(offset + img->img_pixel_ptr)) = color;
 	}
 }
 
@@ -92,7 +35,7 @@ void	draw_line(t_point *a, t_point *b, t_vars *vars)
 	init_line(&line, a, b);
 	while (1)
 	{
-		mlx_pixel_put(vars->mlx, vars->win, x, y, 0xffffff);
+		put_pixel(&vars->img, x, y, 0xFFFFFF);
 		if (x == b->x && y == b->y)
 			break ;
 		e2 = 2 * line.err;
@@ -107,6 +50,16 @@ void	draw_line(t_point *a, t_point *b, t_vars *vars)
 			y += line.sy;
 		}
 	}
+}
+
+void	connect_points(t_point *a, t_point *b, t_vars *vars)
+{
+	if ((a->x == b->x) && (a->y == b->y))
+	{
+		put_pixel(&vars->img, a->x, a->y, 0xFFFFFF);
+		return ;
+	}
+	draw_line(a, b, vars);
 }
 
 void	init_line(t_line *line, t_point *a, t_point *b)

@@ -6,7 +6,7 @@
 /*   By: lcournoy <lcournoy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/24 13:06:40 by lcournoy          #+#    #+#             */
-/*   Updated: 2025/02/04 17:54:08 by lcournoy         ###   ########.fr       */
+/*   Updated: 2025/02/13 16:29:40 by lcournoy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,17 +23,26 @@
 # define HAUTEUR 1080
 # define LARGEUR 1920
 
-# define CENTRE_X 540
+# define CENTRE_X 150
 # define CENTRE_Y 960
 
-# define SPACE 25
-# define RELIEF 3
+# define SPACE 7
+# define RELIEF 2
 
 # define ANGLE 0.52359877559
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 12
 # endif
+
+typedef struct s_image
+{
+	void	*img_ptr;
+	char	*img_pixel_ptr;
+	int		bits_per_pixel;
+	int		endian;
+	int		line_len;
+}				t_image;
 
 typedef struct s_map {
 	int		x;
@@ -52,6 +61,7 @@ typedef struct s_line {
 typedef struct s_vars {
 	void	*mlx;
 	void	*win;
+	t_image	img;
 }				t_vars;
 
 typedef struct s_point {
@@ -60,7 +70,7 @@ typedef struct s_point {
 }				t_point;
 
 // draw_map.c
-t_point	isometric(int x, int y, int z);
+t_point	isometric(int x, int y, int z, t_map map);
 void	draw_map(t_map *map, t_vars vars);
 
 // free_vars.c
@@ -101,13 +111,13 @@ int		**int_split(t_point size, char *filename);
 int		*get_line(char *line, int len);
 
 // line.c
-void	connect_points(t_point *a, t_point *b, t_vars *vars);
+void	put_pixel(t_image *img, int x, int y, int color);
 void	draw_line(t_point *a, t_point *b, t_vars *vars);
-void	draw_vertical_line(t_point *a, t_point *b, t_vars *vars);
-void	draw_horizontal_line(t_point *a, t_point *b, t_vars *vars);
+void	connect_points(t_point *a, t_point *b, t_vars *vars);
 void	init_line(t_line *line, t_point *a, t_point *b);
 
 // main.c
+int		check_file(char *filename);
 int		close_window(t_vars *vars);
 int		key_hook(int keycode, t_vars *vars);
 int		main(int argc, char *argv[]);
